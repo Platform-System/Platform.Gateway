@@ -1,0 +1,70 @@
+{
+  "Routes": [
+    {
+      // ---------------------------------------------------------
+      // ROUTE 1: BẢN ĐỒ DẪN VÀO CATALOG API (Cổng 5001)
+      // ---------------------------------------------------------
+      // 1. DOWNSTREAM (SERVICE THẬT)
+      // Path thật của API bên trong service (Catalog.API)
+      // {everything} = phần path phía sau sẽ được giữ nguyên
+      "DownstreamPathTemplate": "/api/{everything}",
+      "DownstreamScheme": "http", // Giao thức gọi tới service (http hoặc https)
+      "DownstreamHostAndPorts": [ // Địa chỉ service thật (host + port)
+        {
+          "Host": "localhost",
+          "Port": 5001 // Service Catalog đang chạy ở đây
+        }
+      ],
+
+      // 2. UPSTREAM (CLIENT GỌI VÀO)
+      // URL public mà client sẽ gọi vào Gateway
+      // Ví dụ: /catalog/products
+      "UpstreamPathTemplate": "/catalog/{everything}",
+      "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ], // Các HTTP method cho phép đi qua Gateway
+
+      // 3. AUTHENTICATION (BẢO VỆ API)
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer", // Key này map với cấu hình JWT trong Program.cs, "Bearer" = dùng JWT token (thường từ Keycloak)
+        "AllowedScopes": [] // Nếu có scopes thì chỉ cho phép token có scopes này mới được qua, để trống = không kiểm tra scopes
+      },
+
+      // 4. CLAIMS TRANSFORMATION
+      // (LẤY INFO TỪ JWT → GẮN VÀO HEADER)
+      "AddHeadersToRequest": {
+        "X-User-Id": "Claims[userId] > value", // Lấy claim "sub" (user id) từ JWT token → gắn vào header "X-User-Id" trước khi forward request
+        "X-User-Email": "Claims[email] > value", // Lấy email từ token → downstream service có thể đọc từ header này
+        "X-User-Name": "Claims[username] > value" // Lấy username (thường là preferred_username từ Keycloak)
+      }
+    },
+    {
+      // ---------------------------------------------------------
+      // ROUTE 2: BẢN ĐỒ DẪN VÀO IDENTITY API (Cổng 5207) <-- Đây!
+      // ---------------------------------------------------------
+      "DownstreamPathTemplate": "/api/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5207
+        }
+      ],
+      "UpstreamPathTemplate": "/identity/{everything}",
+      "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      },
+      "AddHeadersToRequest": {
+        "X-User-Id": "Claims[userId] > value",
+        "X-User-Email": "Claims[email] > value",
+        "X-User-Name": "Claims[username] > value"
+      }
+
+    }
+  ],
+
+  // 4. GLOBAL CONFIG (CỦA GATEWAY)
+  "GlobalConfiguration": {
+    "BaseUrl": "http://localhost:5000" // URL của chính API Gateway , Client sẽ gọi vào đây
+  }
+}
