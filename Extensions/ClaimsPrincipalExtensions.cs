@@ -6,6 +6,8 @@ namespace Platform.Gateway.Extensions
     /// Nhóm helper để đọc các claim thường dùng từ ClaimsPrincipal.
     /// 
     /// Mục tiêu là gom cách đọc claim vào một chỗ thay vì hardcode string ở nhiều file khác nhau.
+    /// Khi sau này đổi identity provider hoặc đổi rule map claim,
+    /// ta chỉ cần sửa tập trung ở đây thay vì sửa rải rác nhiều nơi.
     /// </summary>
     public static class ClaimsPrincipalExtensions
     {
@@ -34,6 +36,7 @@ namespace Platform.Gateway.Extensions
 
         /// <summary>
         /// Lấy username hiển thị của user từ claim đặc trưng của Keycloak.
+        /// Với hệ thống hiện tại, đây là giá trị hợp lý nhất để hiển thị hoặc audit log.
         /// </summary>
         public static string? GetUsername(this ClaimsPrincipal user)
             => user.GetClaim("preferred_username");

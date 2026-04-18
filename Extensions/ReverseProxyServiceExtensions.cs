@@ -12,6 +12,7 @@ public static class ReverseProxyServiceExtensions
     public static IServiceCollection AddGatewayReverseProxy(this IServiceCollection services, ConfigurationManager configuration)
     {
         // Tách config ra nhiều file giúp sau này thêm service mới mà không làm yarp.json quá dài.
+        // Mỗi file yarp.*.json thường tương ứng với một microservice hoặc một nhóm route.
         configuration
             .AddJsonFile("yarp.json", optional: false, reloadOnChange: true)
             .AddJsonFile("yarp.catalog.json", optional: false, reloadOnChange: true)
@@ -23,6 +24,7 @@ public static class ReverseProxyServiceExtensions
             .AddTransforms(transformBuilderContext =>
             {
                 // Transform này chạy trên từng request trước khi YARP forward sang service thật.
+                // Đây là chỗ gateway "chạm" vào request outgoing để thêm/bỏ/sửa header hoặc path.
                 transformBuilderContext.AddRequestTransform(transformContext =>
                 {
                     var user = transformContext.HttpContext.User;
@@ -35,6 +37,8 @@ public static class ReverseProxyServiceExtensions
                         SetForwardedHeader(transformContext, GatewayRequestHeaders.UserEmail, user.GetClaim(GatewayClaimTypes.Email));
                         SetForwardedHeader(transformContext, GatewayRequestHeaders.UserName, user.GetClaim(GatewayClaimTypes.Username));
                     }
+                    // Nếu request không có user hợp lệ thì Gateway vẫn có thể forward
+                    // đối với các route public, nhưng sẽ không gắn các user header này.
 
                     return ValueTask.CompletedTask;
                 });
@@ -46,6 +50,7 @@ public static class ReverseProxyServiceExtensions
     private static void SetForwardedHeader(RequestTransformContext context, string headerName, string? value)
     {
         // Xóa trước để chắc chắn request outgoing chỉ có đúng một giá trị mới nhất.
+        // Làm vậy để downstream service không bị đọc nhầm nhiều giá trị của cùng một header.
         context.ProxyRequest.Headers.Remove(headerName);
 
         if (!string.IsNullOrWhiteSpace(value))

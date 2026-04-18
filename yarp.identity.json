@@ -1,16 +1,26 @@
 {
   "ReverseProxy": {
     "Routes": {
-      "identity-route": {
+      "identity-api-route": {
         "ClusterId": "identity-cluster",
         "AuthorizationPolicy": "authenticated",
         "Match": {
-          "Path": "/identity/{**catch-all}",
+          "Path": "/api/identity/{**catch-all}",
           "Methods": [ "GET", "POST", "PUT", "DELETE" ]
         },
         "Transforms": [
-          { "PathRemovePrefix": "/identity" },
+          { "PathRemovePrefix": "/api/identity" },
           { "PathPrefix": "/api" }
+        ]
+      },
+      "identity-swagger-route": {
+        "ClusterId": "identity-cluster",
+        "Match": {
+          "Path": "/identity/swagger/{**catch-all}",
+          "Methods": [ "GET" ]
+        },
+        "Transforms": [
+          { "PathRemovePrefix": "/identity" }
         ]
       }
     },

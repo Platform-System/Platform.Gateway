@@ -4,6 +4,9 @@ namespace Platform.Gateway.Security.Constants;
 /// Danh sách custom header mà gateway gửi thêm cho downstream services.
 /// 
 /// Những header này được lấy từ user đã xác thực ở gateway.
+/// 
+/// Đây là cách để service phía sau có thể đọc thông tin user hiện tại nhanh hơn
+/// mà không cần tự suy luận lại từ token ở mọi chỗ trong business code.
 /// </summary>
 public static class GatewayRequestHeaders
 {

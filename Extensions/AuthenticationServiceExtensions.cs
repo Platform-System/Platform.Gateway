@@ -16,6 +16,13 @@ public static class AuthenticationServiceExtensions
     // - Authorization policy để bảo vệ route của gateway
     public static IServiceCollection AddGatewayAuthentication(this IServiceCollection services, IConfiguration configuration)
     {
+        // Ở gateway, "xác thực" nghĩa là:
+        // - đọc access token client gửi lên
+        // - kiểm tra token có đúng issuer, signature, audience... hay không
+        // - nếu hợp lệ thì ASP.NET tạo ra HttpContext.User
+        //
+        // Nhờ vậy các bước sau của gateway mới biết request này là của ai.
+
         // Đọc section "Keycloak" trong appsettings để cấu hình JWT bearer auth.
         services.AddKeycloakAuthentication(configuration);
 
@@ -30,6 +37,7 @@ public static class AuthenticationServiceExtensions
             options.TokenValidationParameters.RoleClaimType = ClaimTypes.Role;
 
             // Event này chỉ để hỗ trợ debug khi token sai/hết hạn/sai issuer...
+            // Khi học microservice, đây là chỗ rất hữu ích để biết request bị fail từ bước auth hay từ business.
             options.Events = new JwtBearerEvents
             {
                 OnAuthenticationFailed = context =>
@@ -41,9 +49,11 @@ public static class AuthenticationServiceExtensions
         });
 
         // Sau khi xác thực token thành công, transformer sẽ thêm các claim nội bộ của gateway.
+        // Đây là bước "chuẩn hóa dữ liệu user" trước khi route request đi tiếp.
         services.AddTransient<IClaimsTransformation, ClaimsTransformer>();
 
         // Policy này đang được dùng trong file YARP config để buộc route phải có user hợp lệ mới được đi qua.
+        // Nói cách khác: route nào gắn policy này thì client không thể gọi ẩn danh.
         services.AddAuthorization(options =>
         {
             options.AddPolicy(GatewayAuthorizationPolicies.Authenticated, policy =>

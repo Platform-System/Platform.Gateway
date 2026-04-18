@@ -5,6 +5,10 @@ namespace Platform.Gateway.Security.Constants;
 /// 
 /// Đây không phải claim "gốc" từ Keycloak, mà là tên claim riêng của gateway
 /// để code trong hệ thống đọc thống nhất hơn.
+/// 
+/// Có thể hiểu đơn giản:
+/// - provider bên ngoài có "ngôn ngữ" của provider
+/// - gateway đổi về "ngôn ngữ nội bộ" của hệ thống
 /// </summary>
 public static class GatewayClaimTypes
 {

@@ -1,16 +1,26 @@
 {
   "ReverseProxy": {
     "Routes": {
-      "catalog-route": {
+      "catalog-api-route": {
         "ClusterId": "catalog-cluster",
         "AuthorizationPolicy": "authenticated",
         "Match": {
-          "Path": "/catalog/{**catch-all}",
+          "Path": "/api/catalog/{**catch-all}",
           "Methods": [ "GET", "POST", "PUT", "DELETE" ]
         },
         "Transforms": [
-          { "PathRemovePrefix": "/catalog" },
+          { "PathRemovePrefix": "/api/catalog" },
           { "PathPrefix": "/api" }
+        ]
+      },
+      "catalog-swagger-route": {
+        "ClusterId": "catalog-cluster",
+        "Match": {
+          "Path": "/catalog/swagger/{**catch-all}",
+          "Methods": [ "GET" ]
+        },
+        "Transforms": [
+          { "PathRemovePrefix": "/catalog" }
         ]
       }
     },

@@ -22,6 +22,16 @@ namespace Platform.Gateway.Security.Transformations
             if (principal.Identity is not ClaimsIdentity identity)
                 return Task.FromResult(principal);
 
+            // Vì gateway muốn phần còn lại của code chỉ làm việc với "ngôn ngữ nội bộ",
+            // nên ở đây ta map claim gốc từ Keycloak sang claim name riêng của gateway.
+            //
+            // Từ đó các chỗ khác chỉ cần nhớ:
+            // - GatewayClaimTypes.UserId
+            // - GatewayClaimTypes.Email
+            // - GatewayClaimTypes.Username
+            //
+            // thay vì phải nhớ provider gốc đang dùng claim nào.
+
             // AddIfNotExists giúp tránh thêm trùng claim nếu pipeline chạy nhiều lần.
             identity.AddIfNotExists(GatewayClaimTypes.Username, principal.GetUsername());
             identity.AddIfNotExists(GatewayClaimTypes.Email, principal.GetEmail());
