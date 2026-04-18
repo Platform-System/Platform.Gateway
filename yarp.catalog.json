@@ -1,0 +1,27 @@
+{
+  "ReverseProxy": {
+    "Routes": {
+      "catalog-route": {
+        "ClusterId": "catalog-cluster",
+        "AuthorizationPolicy": "authenticated",
+        "Match": {
+          "Path": "/catalog/{**catch-all}",
+          "Methods": [ "GET", "POST", "PUT", "DELETE" ]
+        },
+        "Transforms": [
+          { "PathRemovePrefix": "/catalog" },
+          { "PathPrefix": "/api" }
+        ]
+      }
+    },
+    "Clusters": {
+      "catalog-cluster": {
+        "Destinations": {
+          "catalog-destination": {
+            "Address": "http://localhost:5002/"
+          }
+        }
+      }
+    }
+  }
+}

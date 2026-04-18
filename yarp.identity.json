@@ -1,0 +1,27 @@
+{
+  "ReverseProxy": {
+    "Routes": {
+      "identity-route": {
+        "ClusterId": "identity-cluster",
+        "AuthorizationPolicy": "authenticated",
+        "Match": {
+          "Path": "/identity/{**catch-all}",
+          "Methods": [ "GET", "POST", "PUT", "DELETE" ]
+        },
+        "Transforms": [
+          { "PathRemovePrefix": "/identity" },
+          { "PathPrefix": "/api" }
+        ]
+      }
+    },
+    "Clusters": {
+      "identity-cluster": {
+        "Destinations": {
+          "identity-destination": {
+            "Address": "http://localhost:5001/"
+          }
+        }
+      }
+    }
+  }
+}

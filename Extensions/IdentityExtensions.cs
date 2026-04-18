@@ -3,16 +3,18 @@ using System.Security.Claims;
 namespace Platform.Gateway.Extensions
 {
     /// <summary>
-    /// Extension methods bổ sung cho ClaimsIdentity.
-    /// Dùng khi cần thêm claim vào identity một cách an toàn (không bị duplicate).
+    /// Helper để thêm claim vào ClaimsIdentity một cách an toàn.
+    /// 
+    /// Lý do cần helper riêng:
+    /// - tránh thêm claim rỗng
+    /// - tránh thêm trùng cùng một claim type nhiều lần
     /// </summary>
     public static class IdentityExtensions
     {
         /// <summary>
-        /// Thêm một claim vào identity NẾU nó chưa tồn tại.
-        /// - Kiểm tra value không rỗng (tránh thêm claim vô nghĩa).
-        /// - Kiểm tra claim chưa có trong identity (tránh duplicate claim gây lỗi).
-        /// Được dùng trong ClaimsTransformer để an toàn merge claim từ Keycloak vào.
+        /// Chỉ thêm claim khi:
+        /// - value có dữ liệu
+        /// - identity chưa có claim cùng type
         /// </summary>
         public static void AddIfNotExists(this ClaimsIdentity identity, string type, string? value)
         {

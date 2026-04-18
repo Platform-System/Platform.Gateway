@@ -1,6 +1,14 @@
-@Platform.Gateway_HostAddress = http://localhost:5287
+@Platform.Gateway_HostAddress = http://localhost:5000
+@BearerToken = your-access-token
 
-GET {{Platform.Gateway_HostAddress}}/weatherforecast/
+GET {{Platform.Gateway_HostAddress}}/catalog/products
+Authorization: Bearer {{BearerToken}}
+Accept: application/json
+
+###
+
+GET {{Platform.Gateway_HostAddress}}/identity/users/me
+Authorization: Bearer {{BearerToken}}
 Accept: application/json
 
 ###
