@@ -1,4 +1,4 @@
-﻿name: Platform.Gateway CI
+name: Gateway CI
 
 on:
   push:
